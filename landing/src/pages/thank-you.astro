@@ -121,5 +121,9 @@ import FloatingWhatsApp from '../components/FloatingWhatsApp.astro';
 
     const currentLang = localStorage.getItem('binghatti_lang') || 'en';
     updateDOMTranslations(currentLang);
+
+    window.addEventListener('languageChange', (e) => {
+      updateDOMTranslations(e.detail.lang);
+    });
   }
 </script>

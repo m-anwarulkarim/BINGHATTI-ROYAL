@@ -207,6 +207,9 @@
   const savedCurr = localStorage.getItem("binghatti_currency") || "AED";
   updateHeroCurrency(savedCurr);
 
+  const savedLang = localStorage.getItem("binghatti_lang") || "en";
+  updateHero(savedLang);
+
   // 2. Sequential Multi-Video Playlist Engine (c9c3b623 -> 5bfa84f6 -> f3ebc2a9 -> loop)
   const videoPlaylist = [
     "/videos/v3.mp4", // gemini_generated_video_c9c3b623.mp4 (First)
