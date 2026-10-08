@@ -1,16 +1,16 @@
 <script>
-  import { onMount } from 'svelte';
-  import { leadsStore, fetchLeadsFromAPI } from '$lib/leadsStore.js';
+  import { onMount } from "svelte";
+  import { leadsStore, fetchLeadsFromAPI } from "$lib/leadsStore.js";
 
-  let selectedTimeframe = '30';
+  let selectedTimeframe = "30";
 
-  onMount() => {
+  onMount(() => {
     fetchLeadsFromAPI();
   });
 
   // Filter leads based on selected timeframe
   $: filteredLeads = $leadsStore.filter(lead => {
-    if (selectedTimeframe === 'all') return true;
+    if (selectedTimeframe === "all") return true;
     const days = parseInt(selectedTimeframe, 10);
     const date = new Date(lead.created_at || Date.now());
     const cutoff = new Date();
@@ -21,100 +21,311 @@
   // 1. Total Leads
   $: totalLeads = filteredLeads.length;
 
-  // 2. Conversion Rate
+  // 2. Conversion Rate (leads in qualified/contacted/won/negotiation)
   $: convertedCount = filteredLeads.filter(l => 
-    ['contacted', 'qualified', 'negotiation', 'won', 'completed'].includes((l.status || '').toLowerCase())
+    ["contacted", "qualified", "negotiation", "won", "completed"].includes((l.status || "").toLowerCase())
   ).length;
 
   $: conversionRate = totalLeads > 0 
-    ? ((convertedCount / totalLeads) * 100).toFixed(1) + '%' 
-    : '0.0%';
+    ? ((convertedCount / totalLeads) * 100).toFixed(1) + "%" 
+    : "0%";
 
-  // 3. Status Breakdown
-  $: statusCounts = {
-    new: filteredLeads.filter(l => (l.status || 'new').toLowerCase() === 'new').length,
-    contacted: filteredLeads.filter(l => (l.status || '').toLowerCase() === 'contacted').length,
-    qualified: filteredLeads.filter(l => (l.status || '').toLowerCase() === 'qualified').length,
-    negotiation: filteredLeads.filter(l => (l.status || '').toLowerCase() === 'negotiation').length,
-    won: filteredLeads.filter(l => ['won', 'completed'].includes((l.status || '').toLowerCase())).length,
-    lost: filteredLeads.filter(l => (l.status || '').toLowerCase() === 'lost').length,
-  };
+  // 3. Revenue Estimation
+  $: estimatedRevenue = filteredLeads.reduce((acc, lead) => {
+    const budget = parseFloat(lead.budget || lead.budget_range || 0) || 1500000;
+    return acc + (lead.status === "won" || lead.status === "completed" ? budget : budget * 0.1);
+  }, 0);
 
-  // 4. Budget Range Breakdown
-  $: budgetCounts = filteredLeads.reduce((acc, lead) => {
-    const budget = lead.budget_range || 'AED 1.2M - 3M';
-    acc[budget] = (acc[budget] || 0) + 1;
-    return acc;
-  }, {});
+  $: formattedRevenue = "$" + (estimatedRevenue / 1000000).toFixed(2) + "M";
 
-  $: budgetEntries = Object.entries(budgetCounts).sort((a, b) => b[1] - a[1]);
-  $: topBudget = budgetEntries[0] ? budgetEntries[0][0] : 'AED 1.2M - 3M';
+  // 4. Average Budget
+  $: avgBudgetNum = totalLeads > 0 
+    ? filteredLeads.reduce((acc, lead) => acc + (parseFloat(lead.budget || 0) || 2000000), 0) / totalLeads 
+    : 0;
+  $: avgBudget = "$" + Math.round(avgBudgetNum / 1000).toLocaleString() + "K";
 
-  // 5. Investment Purpose Breakdown
-  $: purposeCounts = filteredLeads.reduce((acc, lead) => {
-    const purpose = lead.investment_purpose || 'Capital Appreciation / Investment';
-    acc[purpose] = (acc[purpose] || 0) + 1;
-    return acc;
-  }, {});
+  // Funnel Data Breakdown
+  $: funnelData = [
+    { label: "Total Inquiries", count: totalLeads, percent: 100, color: "from-amber-500 to-amber-600" },
+    { label: "Qualified Leads", count: filteredLeads.filter(l => ["qualified", "contacted", "won"].includes((l.status || "").toLowerCase())).length, percent: totalLeads > 0 ? Math.round((filteredLeads.filter(l => ["qualified", "contacted", "won"].includes((l.status || "").toLowerCase())).length / totalLeads) * 100) : 0, color: "from-amber-400 to-yellow-500" },
+    { label: "Contacted & Meeting", count: filteredLeads.filter(l => ["contacted", "won"].includes((l.status || "").toLowerCase())).length, percent: totalLeads > 0 ? Math.round((filteredLeads.filter(l => ["contacted", "won"].includes((l.status || "").toLowerCase())).length / totalLeads) * 100) : 0, color: "from-yellow-400 to-amber-300" },
+    { label: "Deals Closed / Won", count: filteredLeads.filter(l => ["won", "completed"].includes((l.status || "").toLowerCase())).length, percent: totalLeads > 0 ? Math.round((filteredLeads.filter(l => ["won", "completed"].includes((l.status || "").toLowerCase())).length / totalLeads) * 100) : 0, color: "from-amber-300 to-emerald-400" }
+  ];
 
-  $: purposeEntries = Object.entries(purposeCounts).sort((a, b) => b[1] - a[1]);
+  // Budget Breakdown
+  $: budgetBreakdown = [
+    { range: "$1M - $2M", count: filteredLeads.filter(l => (parseFloat(l.budget) || 1500000) < 2000000).length },
+    { range: "$2M - $5M", count: filteredLeads.filter(l => (parseFloat(l.budget) || 1500000) >= 2000000 && (parseFloat(l.budget) || 1500000) < 5000000).length },
+    { range: "$5M - $10M", count: filteredLeads.filter(l => (parseFloat(l.budget) || 1500000) >= 5000000 && (parseFloat(l.budget) || 1500000) < 10000000).length },
+    { range: "$10M+", count: filteredLeads.filter(l => (parseFloat(l.budget) || 1500000) >= 10000000).length }
+  ];
 
-  $: activePipelineCount = statusCounts.contacted + statusCounts.qualified + statusCounts.negotiation;
+  // Dynamic Chart Points Generation
+  $: chartData = Array.from({ length: 30 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (29 - i));
+    const dateStr = d.toISOString().split("T")[0];
+    const count = filteredLeads.filter(l => {
+      const lDate = (l.created_at || "").split("T")[0];
+      return lDate === dateStr;
+    }).length;
+    return { date: d.toLocaleDateString("en-US", { month: "short", day: "numeric" }), count };
+  });
 
-  // 7. Daily Timeline Data (30-Day SVG Chart)
-  $: dailyChartData = (() => {
-    const days = 30;
-    const counts = new Array(days).fill(0);
-    const now = new Date();
+  $: maxChartVal = Math.max(...chartData.map(d => d.count), 5);
+  $: svgPoints = chartData.map((d, i) => {
+    const x = (i / 29) * 800;
+    const y = 200 - (d.count / maxChartVal) * 160;
+    return `${x},${y}`;
+  }).join(" ");
 
-    filteredLeads.forEach(lead => {
-      const created = new Date(lead.created_at || Date.now());
-      const diffTime = Math.abs(now - created);
-      const diffDays = Math.floor(diffTime / (1000 * 600 * 600 * 24));
-      if (diffDays < days) {
-        counts[days - 1 - diffDays] += 1;
-      }
-    });
-
-    return counts;
-  })();
-
-  $: chartMaxVal = Math.max(...dailyChartData, 4);
-  const chartHeight = 160;
-  const chartWidth = 700;
-
-  $: chartPoints = dailyChartData.map((val, idx) => {
-    const x = (idx / (dailyChartData.length - 1)) * chartWidth;
-    const y = chartHeight - (val / chartMaxVal) * chartHeight;
-    return `${x.toFixed(1)},${y.toFixed(1)}`;
-  }).toin(' ');
-
+  // Export Data to CSV
   function exportCSV() {
     if (filteredLeads.length === 0) {
-      alert('No lead data available for export in the selected timeframe.');
+      alert("No data to export");
       return;
     }
-    const headers = ['ID', 'Full Name', 'WhatsApp', 'Email', 'Budget Range', 'Purpose', 'Status', 'Created At'];
+    const headers = ["ID", "Name", "Email", "Phone", "Project", "Budget", "Status", "Created At"];
     const rows = filteredLeads.map(l => [
-      `"'${l.id}",
-      `"'${l.full_name || ''}"`,
-      `"'${l.whatsapp_number || ''}"`,
-      `"'${l.email || ''}"������Y�]ܘ[��H	��H������[��\�Y[��\���H	��H�������]\�	ۙ]��H������ܙX]Y�]	��H��JN��ۜ��ݔ��H�XY\�˚��[�	�	�K������˛X\
-HO�K���[�	�	�JWK���[�	���N�ۜ��؈H�]��؊��ݔ��K�\N�	�^��ݎ��\��]]]�N��JN�ۜ�\�HT���ܙX]Sؚ�X�T�
-�؊N�ۜ�[��H��[Y[��ܙX]Q[[Y[�
-	�I�N[�˚�Y�H\�[�˜�]]�X�]J	��ۛ�Y	��[��]W�[�[]X��ܙ\ܝ�ۙ]�]J
-K�\����[��
-K��X�JL
-_K��ݘ
-N��[Y[����K�\[��[
-[��N[�˘�X��
-N��[Y[����K��[[ݙP�[
-[��NB���[��[ۈ�]�]\��[J�]\�H��]�
+      l.id || "",
+      `"${l.name || ""}"`,
+      `"${l.email || ""}"`,
+      `"${l.phone || ""}"`,
+      `"${l.project_name || l.project || ""}"`,
+      `"${l.budget || ""}"`,
+      `"${l.status || "New"}"`,
+      `"${l.created_at || ""}"`
+    ]);
+    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `analytics_export_${selectedTimeframe}d.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+</script>
 
-�]\�	��K����\��\�J
-JH�\�H	ۙ]�Έ�]\��	ؙ�X[X�\�ML�MH^X[X�\�M�ܙ\�X[X�\�ML��	��\�H	��۝X�Y	Έ�]\��	ؙ�X�YKML�MH^X�YKM�ܙ\�X�YKML��	��\�H	�]X[Y�YY	Έ�]\��	ؙ�\\�KML�MH^\\�KM�ܙ\�\\�KML��	��\�H	ۙY��X][ۉΈ�]\��	ؙ�Z[�Y��ML�MH^Z[�Y��M�ܙ\�Z[�Y��ML��	��\�H	��ۉ΂��\�H	���\]Y	Έ�]\��	ؙ�Y[Y\�[ML�MH^Y[Y\�[M�ܙ\�Y[Y\�[ML��	��\�H	���	Έ�]\��	ؙ�\���KML�MH^\���KM�ܙ\�\���KML��	�Y�][��]\��	ؙ�]�]K�L^]�]H�ܙ\�]�]Ǩ	�B�B���[��[ۈ�ܛX]ۙJۙJH�]\��
-ۙH	��K��\X�J׌NWK��	��NB���ܚ\���]��\��H��X�K^KN���]��\��H��^�^X���N��^\����N�][\�X�[�\��\�Y�KX�]�Y[��\M�ܙ\�X��ܙ\�]�]K�L�M����]���H�\��H�^L��۝X���۝ZXY[�H^]�]H���۝�\��[ۈ	�[\��Y��X�[�[]X���O���\��H�^^�^[]]Y]LH���X[][YHY]�X���[�[]Y[�[ZX�[H���HX�]�H�TXY�Y�\��][ۜ�[�\[[�H�۝�\��[ۜˏ����]����]��\��H��^][\�X�[�\��\L��Y�[�N��X]]��\�Y�KX�]�Y[��N��\�Y�KY[����]��\��H��^][\�X�[�\���X�X��͌�ܙ\��ܙ\�]�]K�L��[�Y^HLH^^ȏ���]ۂ�\OH��]ۈ��ێ��X��^�
-HO��[X�Y[YY��[YHH	���B��\��H�L�KLK�H��[�Y[��[��][ۋX��ܜ��۝ZXY[�H^V�L\H��[X�Y[YY��[YHOOH	����	ؙ�Y��^X�X���۝X��	��	�^[]]Yݙ\��^]�]I�H�����^\؝]ۏ���]ۂ�\OH��]ۈ��ێ��X��^�
-HO��[X�Y[YY��[YHH	��	�B��\��H�L�KLK�H��[�Y[��[��][ۋX��ܜ��۝ZXY[�H^V�L\H��[X�Y[YY��[YHOOH	��	��	ؙ�Y��^X�X���۝X��	��	�^[]]Yݙ\��^]�]I�H�����^\؝]ۏ���]ۂ�\OH��]ۈ��ێ��X��^�
-HO��[X�Y[YY��[YHH	�L	�B��\��H�L�KLK�H��[�Y[���[��][ۋX��ܜ��۝ZXY[�H^V�L\H��[X�Y[YY��[YHOOH	�L	��	ؙ�Y��^X�X���۝X��	��	�^[]]Yݙ\��^]�]I�H����L^\؝]ۏ���]ۂ�\OH��]ۈ��ێ��X��^�
-HO��[X�Y[YY��[YHH	�[	�B��\��H�L�KLK�H��[�Y[���[��][ۋX��ܜ��۝ZXY[�H^V�L\H��[X�Y[YY��[YHOOH	�[	��	ؙ�Y��^X�X���۝X��	��	�^[]]Yݙ\��^]�]I�H����[[YB�؝]ۏ���]�����]ۂ�\OH��]ۈ��ێ��X��^�^ܝ�՟B��\��H�[�[�KY�^][\�X�[�\��\L�MKL���[�Y^H��Y���MH�ܙ\��ܙ\�Y���^Y��ݙ\����Y��̍H�۝ZXY[�H�۝X��^^��[��][ۋX[�Y��[Y�\��܋\�[�\���[��L����ݙ��\��H��MM��[H��ۙH�����OH��\��[���܈��Y]Л�H������]����K[[�X�\H���[������K[[�Z��[�H���[������K]�YH�K��H�LL�L��LL�L�L���L�L��L��KL�L��XL��L�L�K�N�LHHK��ˌ�L�K�MK�MLHHK��Lˍ�ՌNXL��KL������]���ݙς��[��^ܝ�Տ��[���؝]ۏ���]����]����]��\��H�ܚYܚYX���LH�N�ܚYX���L�ΙܚYX���M�\M���]��\��H��\��X�\�M���[�YL��ܙ\��ܙ\�]�]K�Lݙ\���ܙ\�Y����[��][ۋX��ܜ��^�^X���\�Y�KX�]�Y[��X�K^KM���]��\��H��^][\�X�[�\��\�Y�KX�]�Y[�����[��\��H�^V�LH\\��\�H�۝ZXY[�H�X��[��]�Y\�^[]]Y���[�T�Y�\��][ۜ���[���]��\��H�L��H��[�Y^H��Y���MH�ܙ\��ܙ\�Y����^Y�����ݙ��\��H��MHMH��[H��ۙH�����OH��\��[���܈��Y]Л�H�����]����K[[�X�\H���[������K[[�Z��[�H���[������K]�YH�K��H�LM��]�L�L��MK��M�LK�M�LM���LL�L��K��M�K�L��LK���K��M�LK�M�M����L�L��V˦����3Sb��St�r#b�&3��cSb�#b��#�2�3Sb��Sv�R�"R�"��#���Rv22�b22b��b6""�B""���r""�B""B�#���F����7fs���F�c���F�c��F�c��7�6�73�'FW�B�7��f��B�W�G&&��Bf��BֆVFƖ�RFW�B�v��B&��6�#�F�F��VG7���7���7�6�73�'FW�Bճ��f��B�6V֖&��BFW�B�V�W&�B�C�B�&��6�#�ƗfR7��6�&�旦VBFF&6S��7����F�c���F�cࠢ�F�b6�73�&v�72�6&B�b&�V�FVB�'��&�&FW"&�&FW"�v��FR���fW#�&�&FW"�v��B�CG&�6�F����6���'2f�W�f�W��6���W7F�g��&WGvVV�76Rג�B#��F�b6�73�&f�W��FV�2�6V�FW"�W7F�g��&WGvVV�#��7�6�73�'FW�Bճ��WW&66Rf��BֆVFƖ�RG&6���r�v�FW7BFW�B��WFVB#�6��fW'6���&FS��7���F�b6�73�'�"�R&�V�FVB׃&r�v��B�R&�&FW"&�&FW"�v��B�3FW�B�v��B#��7fr6�73�'r�R��R"f����&���R"7G&��S�&7W'&V�D6���""f�Wt&���##B#B#��F�7G&��R�Ɩ�V6�'&�V�B"7G&��R�Ɩ�V�����'&�V�B"7G&��R�v�GF��#�"C�$�2v���c��ӆ�ӂ��B�B�bb#���F����7fs���F�c���F�c��F�c��7�6�73�'FW�B�'��f��B�W�G&&��Bf��BֆVFƖ�RFW�B�v��FR&��6�#�6��fW'6���&FW���7���7�6�73�'FW�Bճ��f��B�6V֖&��BFW�B�V�W&�B�C�B�&��6�#�6��fW'FVD6�V�G���F�F��VG7�V�vvVB�VG3��7����F�c���F�cࠢ�F�b6�73�&v�72�6&B�b&�V�FVB�'��&�&FW"&�&FW"�v��FR���fW#�&�&FW"�v��B�CG&�6�F����6���'2f�W�f�W��6���W7F�g��&WGvVV�76Rג�B#��F�b6�73�&f�W��FV�2�6V�FW"�W7F�g��&WGvVV�#��7�6�73�'FW�Bճ��WW&66Rf��BֆVFƖ�RG&6���r�v�FW7BFW�B��WFVB#�F�'VFvWB&VfW&V�6S��7���F�b6�73�'�"�R&�V�FVB׃&r�v��B�R&�&FW"&�&FW"�v��B�3FW�B�v��B#��7fr6�73�'r�R��R"f����&���R"7G&��S�&7W'&V�D6���""f�Wt&���##B#B#��F�7G&��R�Ɩ�V6�'&�V�B"7G&��R�Ɩ�V�����'&�V�B"7G&��R�v�GF��#�"C�$�"�2��cSr�2ビR�2'3�3C2"2"2ビR2"��3C2"�2&�ӆ3�"���C""�S���"�cf��c&��f2���"����C"�"�S����#&��������#���F����7fs���F�c���F�c��F�c��7�6�73�'FW�B��rf��B�&��Bf��BֆVFƖ�RFW�B�v��B&��6�G'V�6FR"F�F�S׷F�'VFvWG��F�'VFvWG���7���7�6�73�'FW�Bճ��f��B�6V֖&��BFW�B��WFVB�B�&��6�#䆖v�W7B��fW7F�"FV��C��7����F�c���F�cࠢ�F�b6�73�&v�72�6&B�b&�V�FVB�'��&�&FW"&�&FW"�v��FR���fW#�&�&FW"�v��B�CG&�6�F����6���'2f�W�f�W��6���W7F�g��&WGvVV�76Rג�B#��F�b6�73�&f�W��FV�2�6V�FW"�W7F�g��&WGvVV�#��7�6�73�'FW�Bճ��WW&66Rf��BֆVFƖ�RG&6���r�v�FW7BFW�B��WFVB#�7F�fR6�W2�VƖ�S��7���F�b6�73�'�"�R&�V�FVB׃&r�v��B�R&�&FW"&�&FW"�v��B�3FW�B�v��B#��7fr6�73�'r�R��R"f����&���R"7G&��S�&7W'&V�D6���""f�Wt&���##B#B#��F�7G&��R�Ɩ�V6�'&�V�B"7G&��R�Ɩ�V�����'&�V�B"7G&��R�v�GF��#�"C�$��#cV""�"�$�v""�"'cf�B�&��"��V�Ӓ�6�"�V�cR�V��&cV��B�B#���F����7fs���F�c���F�c��F�c��7�6�73�'FW�B�'��f��B�W�G&&��Bf��BֆVFƖ�RFW�B�v��FR&��6�#�7F�fU�VƖ�T6�V�G���7���7�6�73�'FW�Bճ��f��B�6V֖&��BFW�B�W'�R�C�B�&��6�#��7F�fRGf�6�"F�67W76�����7����F�c���F�c���F�cࠢ�F�b6�73�&v�72�6&B�b&�V�FVB�'��&�&FW"&�&FW"�v��FR�76Rג�b#��F�b6�73�&f�W�f�W��6��6Ӧf�W��&�r6Ӧ�FV�2�6V�FW"�W7F�g��&WGvVV�v�"#��F�c�ƃ26�73�'FW�B��rf��B�&��Bf��BֆVFƖ�RFW�B�v��FR#�F�ǒ�VB&Vv�7G&F���G&V�B�3F�2����3��6�73�'FW�Bׇ2FW�B��WFVB�B��R#�G��֖2&Vv�7G&F���g&WVV�7�6�7V�FVBg&��F��W7F�VBFF&6RV�G&�W2������F�c��F�b6�73�'��2��&�V�FVB�gV��&r�v��B�FW�B�v��BFW�Bׇ2f��BֆVFƖ�Rf��B�&��B&�&FW"&�&FW"�v��B�36V�b�7F'B6ӧ6V�b�WF�#�3�F�f��V�S��F�ǔ6�'DFF�&VGV6R���"����"�����V�&�W0���F�c���F�cࠢ�F�b6�73�'r�gV���fW&f��rֆ�FFV�B�B#��7frf�Wt&���#s�"6�73�'r�gV����C��fW&f��r�f�6�&�R#��Ɩ�R��#"��#"�#�#s"�#�#"7G&��S�'&v&�#SR�#SR�#SR��R�"7G&��R�F6�'&��#B"���Ɩ�R��#"��#c"�#�#s"�#�#c"7G&��S�'&v&�#SR�#SR�#SR��R�"7G&��R�F6�'&��#B"���Ɩ�R��#"��##"�#�#s"�#�##"7G&��S�'&v&�#SR�#SR�#SR��R�"7G&��R�F6�'&��#B"���Ɩ�R��#"��#�"�#�#s"�#�#�"7G&��S�'&v&�#SR�#SR�#SR���"���FVg3��Ɩ�V$w&F�V�B�C�&6�'Dw&F�V�B"��#"��#"�#�#"�#�##��7F��fg6WC�#R"7F��6���#�"4CDc#r"7F���6�G��#�CR"���7F��fg6WC�#R"7F��6���#�"4CDc#r"7F���6�G��#"����Ɩ�V$w&F�V�C���FVg3���ǖv�����G3׶��G�6�'E���G7�s���f����'W&66�'Dw&F�V�B�"����ǖƖ�R���G3׶6�'E���G7�f����&���R"7G&��S�"4CDc#r"7G&��R�v�GF��#2"7G&��R�Ɩ�V6�'&�V�B"7G&��R�Ɩ�V�����'&�V�B"����7fs��F�b6�73�&f�W��W7F�g��&WGvVV�FW�Bճ��FW�B��WFVBf��BֆVFƖ�R&�&FW"�B&�&FW"�v��FR�B�"#��7��3F�2v���7���7��#F�2v���7���7��F�2v���7���7�6�73�'FW�B�v��Bf��B�&��B#�F�F��&V�F��R���7����F�c���F�g���F�gࠢ�F�b6�73�&w&�Bw&�B�6��2��s�w&�B�6��2�"v�b#��F�b6�73�&v�72�6&B�b&�V�FVB�'��&�&FW"&�&FW"�v��FR�76Rג�R#��F�c�ƃ26�73�'FW�B�&6Rf��B�&��Bf��BֆVFƖ�RFW�B�v��FR#�6�W2gV��V�'&V�F�v����3��6�73�'FW�Bׇ2FW�B��WFVB#�7W'&V�BF�7G&�'WF����b�VG27&�725$�7FGW27FvW2������F�cࠢ�F�b6�73�'76Rג�B#��F�c��F�b6�73�&f�W��W7F�g��&WGvVV�FW�Bׇ2�"�f��BֆVFƖ�R#��7�6�73�'FW�B��&W"�Cf��B�6V֖&��B#��WrV�6��F7FVB��7FGW46�V�G2��Wwғ��7���7�6�73�'FW�B��WFVB#�F�F��VG2�����7FGW46�V�G2��Wr�F�F��VG2����f��VB����S��7����F�c��F�b6�73�'r�gV����"&�V�FVB�gV��&r�v��FR��fW&f��rֆ�FFV�#��F�b6�73�&��gV��&r��&W"�CG&�6�F������GW&F����S"7G��S�'v�GF���F�F��VG2���7FGW46�V�G2��Wr�F�F��VG2����R#���F�c���F�c���F�cࠢ�F�c��F�b6�73�&f�W��W7F�g��&WGvVV�FW�Bׇ2�"�f��BֆVFƖ�R#��7�6�73�'FW�B�&�VR�Cf��B�6V֖&��B#�6��F7FVB��7FGW46�V�G2�6��F7FVGғ��7���7�6�73�'FW�B��WFVB#�F�F��VG2�����7FGW46�V�G2�6��F7FVB�F�F��VG2����f��VB����S��7����F�c��F�b6�73�'r�gV����"&�V�FVB�gV��&r�v��FR��fW&f��rֆ�FFV�#��F�b6�73�&��gV��&r�&�VR�CG&�6�F������GW&F����S"7G��S�'v�GF���F�F��VG2���7FGW46�V�G2�6��F7FVB�F�F��VG2����R#���F�c���F�c���F�cࠢ�F�c��F�b6�73�&f�W��W7F�g��&WGvVV�FW�Bׇ2�"�f��BֆVFƖ�R#��7�6�73�'FW�B�W'�R�Cf��B�6V֖&��B#�VƖf�VB�7FGW46�V�G2�VƖf�VB���7���7�6�73�'FW�B��WFVB#�F�F��VG2�����7FGW46�V�G2�VƖf�VB�F�F��VG2����f��VB����S��7����F�c��F�b6�73�'r�gV����"&�V�FVB�gV��&r�v��FR��fW&f��rֆ�FFV�#��F�b6�73�&��gV��&r�W'�R�CG&�6�F������GW&F����S"7G��S�'v�GF���F�F��VG2���7FGW46�V�G2�VƖf�VB�F�F��VG2����R#���F�c���F�c���F�cࠢ�F�c��F�b6�73�&f�W��W7F�g��&WGvVV�FW�Bׇ2�"�f��BֆVFƖ�R#��7�6�73�'FW�B֖�F�v��Cf��B�6V֖&��B#���Vv�F�F����7FGW46�V�G2��Vv�F�F�����7���7�6�73�'FW�B��WFVB#�F�F��VG2�����7FGW46�V�G2��Vv�F�F����F�F��VG2����f��VB����S��7����F�c��F�b6�73�'r�gV����"&�V�FVB�gV��&r�v��FR��fW&f��rֆ�FFV�#��F�b6�73�&��gV��&r֖�F�v��CG&�6�F������GW&F����S"7G��S�'v�GF���F�F��VG2���7FGW46�V�G2��Vv�F�F����F�F��VG2����R#���F�c���F�c���F�cࠢ�F�c��F�b6�73�&f�W��W7F�g��&WGvVV�FW�Bׇ2�"�f��BֆVFƖ�R#��7�6�73�'FW�B�V�W&�B�Cf��B�6V֖&��B#�v���6���WFVB�7FGW46�V�G2�v����7���7�6�73�'FW�B��WFVB#�F�F��VG2�����7FGW46�V�G2�v���F�F��VG2����f��VB����S��7����F�c��F�b6�73�'r�gV����"&�V�FVB�gV��&r�v��FR��fW&f��rֆ�FFV�#��F�b6�73�&��gV��&r�V�W&�B�CG&�6�F������GW&F����S"7G��S�'v�GF���F�F��VG2���7FGW46�V�G2�v���F�F��VG2����R#���F�c���F�c���F�c���F�c���F�cࠢ�F�b6�73�&v�72�6&B�b&�V�FVB�'��&�&FW"&�&FW"�v��FR�76Rג�R#��F�c�ƃ26�73�'FW�B�&6Rf��B�&��Bf��BֆVFƖ�RFW�B�v��FR#��fW7F�"��F�fF���'&V�F�v����3��6�73�'FW�Bׇ2FW�B��WFVB#�&��'���fW7F�V�Bv��26V�V7FVB'�&Vv�7FW&VB6ƖV�G2������F�cࠢ�F�b6�73�'76Rג�B#��6V6�W'�6TV�G&�W22�W'�6R�6�V�E�Т�F�c��F�b6�73�&f�W��W7F�g��&WGvVV�FW�Bׇ2�"�f��BֆVFƖ�R#��7�6�73�'FW�B�v��Bf��B�6V֖&��B#�W'�6W���6�V�Gғ��7���7�6�73�'FW�B��WFVB#�F�F��VG2�����6�V�B�F�F��VG2����f��VB����S��7����F�c��F�b6�73�'r�gV����"&�V�FVB�gV��&r�v��FR��fW&f��rֆ�FFV�#��F�b6�73�&��gV��&r�v��BG&�6�F������GW&F����S"7G��S�'v�GF���F�F��VG2���6�V�B�F�F��VG2����R#���F�c���F�c���F�c���V6�Р��6�bW'�6TV�G&�W2��V�wF����Т�6�73�'FW�Bׇ2FW�B��WFVB��BFW�B�6V�FW"#�����fW7F�"W'�6RFF��vvVB�WB�������gТ��F�c���F�c���F�cࠢ�F�b6�73�&v�72�6&B�b&�V�FVB�'��&�&FW"&�&FW"�v��FR�76Rג�B#��F�b6�73�&f�W��FV�2�6V�FW"�W7F�g��&WGvVV�&�&FW"�"&�&FW"�v��FR�"�B#��F�c�ƃ26�73�'FW�B�&6Rf��B�&��Bf��BֆVFƖ�RFW�B�v��FR#�&V6V�Bd�&Vv�7G&F���3���3��6�73�'FW�Bׇ2FW�B��WFVB#��FW7B�VG27V&֗GFVBF�&�Vv�F�R�W�W'���F��rvR������F�c���&Vc�"���VG2"6�73�'FW�Bׇ2FW�B�v��Bf��BֆVFƖ�Rf��B�&��B��fW#�V�FW&Ɩ�R#�f�Wr��5$��VƖ�Rg&'#������F�cࠢ�F�b6�73�&�fW&f��rׂ�WF�#��F&�R6�73�'r�gV��FW�B��VgBFW�Bׇ2#��F�VC��G"6�73�'FW�B��WFVBf��BֆVFƖ�RWW&66RG&6���r�v�FW"&�&FW"�"&�&FW"�v��FR�FW�Bճ��#��F�6�73�'"�2f��B�6V֖&��B#��fW7F�"��S��F���F�6�73�'"�2f��B�6V֖&��B#�v�G4��F���F�6�73�'"�2f��B�6V֖&��B#�'VFvWC��F���F�6�73�'"�2f��B�6V֖&��B#�7FGW3��F���F�6�73�'"�2f��B�6V֖&��BFW�B�&�v�B#�7F�����F����G#���F�VC��F&�G�6�73�&F�f�FRגF�f�FR�v��FR�R#��fV6�f��FW&VD�VG2�6Ɩ6R��R�2�VGТ�G"6�73�&��fW#�&r�v��FR�RG&�6�F����6���'2#��FB6�73�'��2�Rf��B�&��Bf��BֆVFƖ�RFW�B�v��FR#��VB�gV�����R��ud���fW7F�"w���FC��FB6�73�'��2�RFW�B��WFVBf��B�����FW�Bճ��#��VB�v�G6��V�&W"��t��w���FC��FB6�73�'��2�RFW�B�v��Bf��B�6V֖&��B#��VB�'VFvWE�&�vR��t��w���FC��FB6�73�'��2�R#��7�6�73�&��Ɩ�R�&��6���"�R���R&�V�FVB�gV��FW�Bճ��f��B�&��B&�&FW"WW&66RG&6���r�v�FW"�vWE7FGW57G��R��VB�7FGW2��#���VB�7FGW2��v�WrwТ��7����FC��FB6�73�'��2�RFW�B�&�v�B#��6�b�VB�v�G6��V�&W'Т���&Vc�&�GG3���v��R��f�&�E���R��VB�v�G6��V�&W"���FW�CԆV���S#W�W'B �F&vWC�%�&�� �6�73�&��Ɩ�R�f�W��FV�2�6V�FW"v���2��&�V�FVB��r��fW#�&r�V�W&�B�S�3f��B�&��BFW�Bճ��G&�6�F����6���'2&r�V�W&�B�S�#FW�B�V�W&�B�C&�&FW"&�&FW"�V�W&�B�S�3 ���7��v�G4��7��������gТ��FC���G#���V6�Р��6�bf��FW&VD�VG2��V�wF����Т�G#��FB6��7��#R"6�73�'�ӂFW�B�6V�FW"FW�B��WFVBf��B�Ɩv�B#���&Vv�7FW&VB�VG2f�V�B��F�R6V�V7FVBF��Vg&�R���FC���G#����gТ��F&�G����F&�S���F�g���F�g���F�c�
+<svelte:head>
+  <title>Analytics & Insights | Luxury Dashboard</title>
+</svelte:head>
+
+<div class="space-y-8 p-6 text-gray-100 min-h-screen">
+  <!-- Top Navigation / Header -->
+  <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 border-b border-amber-500/20 pb-6">
+    <div>
+      <h1 class="text-3xl font-bold bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-500 bg-clip-text text-transparent">
+        Analytics & Performance
+      </h1>
+      <p class="text-gray-400 text-sm mt-1">Real-time performance metrics and lead conversion insights</p>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <!-- Timeframe Filter -->
+      <select
+        bind:value={selectedTimeframe}
+        class="bg-gray-900 border border-amber-500/30 text-amber-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-amber-400 transition"
+      >
+        <option value="7">Last 7 Days</option>
+        <option value="30">Last 30 Days</option>
+        <option value="90">Last 90 Days</option>
+        <option value="all">All Time</option>
+      </select>
+
+      <!-- Export CSV Button -->
+      <button
+        on:click={exportCSV}
+        class="flex items-center gap-2 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/40 text-amber-300 px-4 py-2 rounded-lg text-sm transition"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        Export CSV
+      </button>
+    </div>
+  </div>
+
+  <!-- Key Metrics Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <!-- Card 1 -->
+    <div class="bg-gradient-to-br from-gray-900 via-gray-900 to-gray-950 border border-amber-500/20 p-6 rounded-xl relative overflow-hidden group">
+      <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-amber-500/5 rounded-full blur-xl group-hover:bg-amber-500/10 transition"></div>
+      <span class="text-xs uppercase font-semibold text-gray-400 tracking-wider">Total Leads</span>
+      <div class="text-3xl font-extrabold text-amber-300 mt-2">{totalLeads}</div>
+      <div class="text-xs text-amber-500/80 mt-2 flex items-center gap-1">
+        <span>Live Synced</span>
+      </div>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="bg-gradient-to-br from-gray-900 via-gray-900 to-gray-950 border border-amber-500/20 p-6 rounded-xl relative overflow-hidden group">
+      <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-yellow-500/5 rounded-full blur-xl group-hover:bg-yellow-500/10 transition"></div>
+      <span class="text-xs uppercase font-semibold text-gray-400 tracking-wider">Conversion Rate</span>
+      <div class="text-3xl font-extrabold text-amber-300 mt-2">{conversionRate}</div>
+      <div class="text-xs text-emerald-400 mt-2 flex items-center gap-1">
+        <span>{convertedCount} converted / qualified</span>
+      </div>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="bg-gradient-to-br from-gray-900 via-gray-900 to-gray-950 border border-amber-500/20 p-6 rounded-xl relative overflow-hidden group">
+      <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-emerald-500/5 rounded-full blur-xl group-hover:bg-emerald-500/10 transition"></div>
+      <span class="text-xs uppercase font-semibold text-gray-400 tracking-wider">Estimated Pipeline</span>
+      <div class="text-3xl font-extrabold text-amber-300 mt-2">{formattedRevenue}</div>
+      <div class="text-xs text-gray-400 mt-2">Weighted property value</div>
+    </div>
+
+    <!-- Card 4 -->
+    <div class="bg-gradient-to-br from-gray-900 via-gray-900 to-gray-950 border border-amber-500/20 p-6 rounded-xl relative overflow-hidden group">
+      <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-blue-500/5 rounded-full blur-xl group-hover:bg-blue-500/10 transition"></div>
+      <span class="text-xs uppercase font-semibold text-gray-400 tracking-wider">Avg Lead Value</span>
+      <div class="text-3xl font-extrabold text-amber-300 mt-2">{avgBudget}</div>
+      <div class="text-xs text-gray-400 mt-2">Average buyer budget</div>
+    </div>
+  </div>
+
+  <!-- Charts Section -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Lead Volume Timeline (SVG Area Chart) -->
+    <div class="lg:col-span-2 bg-gray-900/60 border border-amber-500/20 rounded-xl p-6 backdrop-blur-sm">
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <h2 class="text-lg font-bold text-amber-200">Lead Volume Trend</h2>
+          <p class="text-xs text-gray-400">Daily lead registrations over past 30 days</p>
+        </div>
+        <span class="text-xs text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/30">
+          Real-time
+        </span>
+      </div>
+
+      <!-- SVG Area Chart -->
+      <div class="relative w-full h-64 overflow-x-auto">
+        <svg viewBox="0 0 800 200" class="w-full h-full overflow-visible">
+          <defs>
+            <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.4"/>
+              <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.0"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Grid Lines -->
+          <line x1="0" y1="40" x2="800" y2="40" stroke="#374151" stroke-dasharray="4" stroke-width="0.5"/>
+          <line x1="0" y1="90" x2="800" y2="90" stroke="#374151" stroke-dasharray="4" stroke-width="0.5"/>
+          <line x1="0" y1="140" x2="800" y2="140" stroke="#374151" stroke-dasharray="4" stroke-width="0.5"/>
+          <line x1="0" y1="190" x2="800" y2="190" stroke="#374151" stroke-width="1"/>
+
+          <!-- Area -->
+          {#if svgPoints}
+            <polygon points={`0,200 ${svgPoints} 800,200`} fill="url(#chartGradient)"/>
+            <!-- Path Line -->
+            <polyline points={svgPoints} fill="none" stroke="#fbbf24" stroke-width="3" stroke-linecap="round"/>
+          {/if}
+
+          <!-- Points -->
+          {#each chartData as d, i}
+            {@const x = (i / 29) * 800}
+            {@const y = 200 - (d.count / maxChartVal) * 160}
+            <circle cx={x} cy={y} r="4" class="fill-amber-400 hover:r-6 transition-all cursor-pointer">
+              <title>{d.date}: {d.count} leads</title>
+            </circle>
+          {/each}
+        </svg>
+      </div>
+      <div class="flex justify-between text-xs text-gray-500 mt-4 px-2">
+        <span>30 Days Ago</span>
+        <span>15 Days Ago</span>
+        <span>Today</span>
+      </div>
+    </div>
+
+    <!-- Sales Conversion Funnel -->
+    <div class="bg-gray-900/60 border border-amber-500/20 rounded-xl p-6 backdrop-blur-sm">
+      <h2 class="text-lg font-bold text-amber-200 mb-2">Lead Conversion Funnel</h2>
+      <p class="text-xs text-gray-400 mb-6">Stage progression efficiency</p>
+
+      <div class="space-y-5">
+        {#each funnelData as stage}
+          <div>
+            <div class="flex justify-between text-xs font-semibold mb-1">
+              <span class="text-gray-300">{stage.label}</span>
+              <span class="text-amber-400">{stage.count} ({stage.percent}%)</span>
+            </div>
+            <div class="w-full bg-gray-800 rounded-full h-3 overflow-hidden border border-amber-500/10">
+              <div
+                class={`h-full bg-gradient-to-r ${stage.color} rounded-full transition-all duration-500`}
+                style={`width: ${Math.max(stage.percent, 5)}%`}
+              ></div>
+            </div>
+          </div>
+        {/each}
+      </div>
+    </div>
+  </div>
+
+  <!-- Lower Section: Budget Distribution & Live Stream -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Budget Distribution -->
+    <div class="bg-gray-900/60 border border-amber-500/20 rounded-xl p-6 backdrop-blur-sm">
+      <h2 class="text-lg font-bold text-amber-200 mb-2">Buyer Budget Demographics</h2>
+      <p class="text-xs text-gray-400 mb-6">Distribution across price brackets</p>
+
+      <div class="space-y-4">
+        {#each budgetBreakdown as item}
+          {@const total = totalLeads || 1}
+          {@const pct = Math.round((item.count / total) * 100)}
+          <div class="flex items-center justify-between gap-4">
+            <span class="text-xs text-gray-300 w-24 font-medium">{item.range}</span>
+            <div class="flex-1 bg-gray-800 h-2.5 rounded-full overflow-hidden">
+              <div class="bg-amber-400 h-full rounded-full" style={`width: ${pct}%`}></div>
+            </div>
+            <span class="text-xs text-amber-400 font-bold w-12 text-right">{item.count}</span>
+          </div>
+        {/each}
+      </div>
+    </div>
+
+    <!-- Live Recent Leads Feed -->
+    <div class="lg:col-span-2 bg-gray-900/60 border border-amber-500/20 rounded-xl p-6 backdrop-blur-sm">
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <h2 class="text-lg font-bold text-amber-200">Recent Lead Submissions</h2>
+          <p class="text-xs text-gray-400">Latest active contacts from landing page</p>
+        </div>
+        <a href="/leads" class="text-xs text-amber-400 hover:text-amber-300 underline">View All Leads →</a>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead>
+            <tr class="text-amber-500/80 border-b border-gray-800">
+              <th class="pb-3 font-semibold">Name</th>
+              <th class="pb-3 font-semibold">Contact</th>
+              <th class="pb-3 font-semibold">Project</th>
+              <th class="pb-3 font-semibold">Status</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-800/60 text-gray-300">
+            {#each filteredLeads.slice(0, 5) as lead}
+              <tr class="hover:bg-amber-500/5 transition">
+                <td class="py-3 font-medium text-white">{lead.name || "Anonymous"}</td>
+                <td class="py-3 text-gray-400">{lead.phone || lead.email || "N/A"}</td>
+                <td class="py-3 text-amber-300/90">{lead.project_name || lead.project || "Binghatti Royal"}</td>
+                <td class="py-3">
+                  <span class="px-2 py-0.5 rounded text-[10px] uppercase font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                    {lead.status || "New"}
+                  </span>
+                </td>
+              </tr>
+            {/each}
+            {#if filteredLeads.length === 0}
+              <tr>
+                <td colspan="4" class="text-center py-6 text-gray-500">No leads found for this period.</td>
+              </tr>
+            {/if}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
