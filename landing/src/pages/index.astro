@@ -1,0 +1,59 @@
+﻿---
+import MainLayout from '../layouts/MainLayout.astro';
+import Header from '../components/Header.astro';
+import Hero from '../components/Hero.astro';
+import KeyHighlights from '../components/KeyHighlights.astro';
+import ArchitecturalVision from '../components/ArchitecturalVision.astro';
+import UnitCollection from '../components/UnitCollection.astro';
+import AmenitiesGrid from '../components/AmenitiesGrid.astro';
+import LocationMap from '../components/LocationMap.astro';
+import InvestmentBenefits from '../components/InvestmentBenefits.astro';
+import PaymentPlan from '../components/PaymentPlan.astro';
+import VIPForm from '../components/VIPForm.astro';
+import Footer from '../components/Footer.astro';
+import FloatingWhatsApp from '../components/FloatingWhatsApp.astro';
+import FloorPlanModal from '../components/FloorPlanModal.svelte';
+---
+
+<MainLayout title="Binghatti Residences | Architectural Masterpieces Business Bay Dubai">
+  <!-- Top Navigation Header with Currency & Language Switcher -->
+  <Header />
+
+  <main>
+    <!-- Section 1: Hero Experience -->
+    <Hero />
+
+    <!-- Section 2: Key Highlights Bar -->
+    <KeyHighlights />
+
+    <!-- Section 3: Concept & Architectural Vision -->
+    <ArchitecturalVision />
+
+    <!-- Section 4: Unit Collection & Floor Plans -->
+    <UnitCollection />
+
+    <!-- Section 5: World-Class Amenities Grid -->
+    <AmenitiesGrid />
+
+    <!-- Section 6: Prime Location & Connectivity -->
+    <LocationMap />
+
+    <!-- Section 7: Why Invest in Dubai? -->
+    <InvestmentBenefits />
+
+    <!-- Section 8: Flexible Payment Plan Breakdown -->
+    <PaymentPlan />
+
+    <!-- Section 9: VIP Lead Capture Form -->
+    <VIPForm />
+  </main>
+
+  <!-- Site Footer -->
+  <Footer />
+
+  <!-- Interactive Floating WhatsApp CTA -->
+  <FloatingWhatsApp />
+
+  <!-- Interactive Gated Floor Plan Modal Island -->
+  <FloorPlanModal client:only="svelte" />
+</MainLayout>

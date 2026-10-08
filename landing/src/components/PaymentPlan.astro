@@ -1,0 +1,98 @@
+﻿---
+const milestones = [
+  { id: "s1" },
+  { id: "s2" },
+  { id: "s3" }
+];
+---
+
+<section id="payment" class="py-16 sm:py-24 bg-bg-dark border-y border-white/10">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    
+    <div class="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
+      <span id="pay-tag" class="text-xs uppercase tracking-[0.3em] text-gold font-headline font-bold block mb-2">Tailored Financial Structure</span>
+      <h2 class="text-2xl sm:text-4xl md:text-5xl font-black font-headline text-white mb-3 sm:mb-4">
+        <span id="pay-t1">70 / 30 FLEXIBLE</span> <span id="pay-t2" class="text-gold-gradient">PAYMENT PLAN</span>
+      </h2>
+      <p id="pay-desc" class="text-white/80 text-xs sm:text-base font-light">
+        Designed to maximize investor flexibility with construction-linked milestones.
+      </p>
+    </div>
+
+    <!-- 2 cards per row on mobile (grid-cols-2 md:grid-cols-3) -->
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-6 md:gap-8">
+      {milestones.map((step, idx) => (
+        <div class={`glass-card p-4 sm:p-6 md:p-8 rounded-2xl border-gold/30 relative text-center flex flex-col items-center ${idx === 2 ? 'col-span-2 md:col-span-1 max-w-md mx-auto w-full md:max-w-none' : ''}`}>
+          <div id={`pay-percent-${step.id}`} class="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gold/15 border-2 border-gold text-gold font-headline font-black text-base sm:text-2xl flex items-center justify-center mb-3 sm:mb-6 shadow-[0_0_25px_rgba(212,175,55,0.4)]">
+            --
+          </div>
+
+          <h3 id={`pay-title-${step.id}`} class="text-base sm:text-xl md:text-2xl font-bold font-headline text-white mb-1">--</h3>
+          <span id={`pay-sub-${step.id}`} class="text-[10px] sm:text-xs font-bold text-gold uppercase tracking-wider block mb-2 sm:mb-4">--</span>
+          <p id={`pay-d-${step.id}`} class="text-[11px] sm:text-xs md:text-sm text-white/80 font-light leading-relaxed">--</p>
+        </div>
+      ))}
+    </div>
+
+    <!-- Custom Plan Banner -->
+    <div class="mt-8 sm:mt-12 p-5 sm:p-8 rounded-2xl glass-card border-gold/40 flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6">
+      <div class="text-center md:text-left">
+        <h4 id="pay-custom-title" class="text-base sm:text-xl font-bold font-headline text-white mb-1">Need a Customized Payment Plan?</h4>
+        <p id="pay-custom-desc" class="text-xs sm:text-sm text-white/80">Our financial advisors can structure custom quarterly installments suited to your budget.</p>
+      </div>
+      <a
+        href="#vip-form"
+        id="pay-btn-custom"
+        style="background: linear-gradient(135deg, #FFF099 0%, #D4AF37 50%, #F59E0B 100%) !important; color: #000000 !important; font-weight: 900 !important;"
+        class="px-6 py-3.5 rounded-xl text-xs font-headline uppercase tracking-wider hover:scale-105 transition-all whitespace-nowrap shadow-[0_0_20px_rgba(212,175,55,0.4)] cursor-pointer"
+      >
+        Request Custom Plan
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<script>
+  import { translations } from '../lib/translations.js';
+
+  function updatePayment(lang) {
+    const t = translations[lang] || translations.en;
+    const p = t.payment;
+
+    const tag = document.getElementById('pay-tag');
+    const t1 = document.getElementById('pay-t1');
+    const t2 = document.getElementById('pay-t2');
+    const desc = document.getElementById('pay-desc');
+    const ct = document.getElementById('pay-custom-title');
+    const cd = document.getElementById('pay-custom-desc');
+    const cb = document.getElementById('pay-btn-custom');
+
+    if (tag) tag.innerText = p.tag;
+    if (t1) t1.innerText = p.title1;
+    if (t2) t2.innerText = p.title2;
+    if (desc) desc.innerText = p.desc;
+    if (ct) ct.innerText = p.customTitle;
+    if (cd) cd.innerText = p.customDesc;
+    if (cb) cb.innerText = p.btnCustom;
+
+    ['s1', 's2', 's3'].forEach(id => {
+      const pct = document.getElementById(`pay-percent-${id}`);
+      const title = document.getElementById(`pay-title-${id}`);
+      const sub = document.getElementById(`pay-sub-${id}`);
+      const d = document.getElementById(`pay-d-${id}`);
+
+      if (pct) pct.innerText = p[`${id}Percent`];
+      if (title) title.innerText = p[`${id}Title`];
+      if (sub) sub.innerText = p[`${id}Sub`];
+      if (d) d.innerText = p[`${id}Desc`];
+    });
+  }
+
+  window.addEventListener('languageChange', (e: any) => {
+    updatePayment(e.detail.lang);
+  });
+
+  const savedLang = localStorage.getItem('binghatti_lang') || 'en';
+  updatePayment(savedLang);
+</script>

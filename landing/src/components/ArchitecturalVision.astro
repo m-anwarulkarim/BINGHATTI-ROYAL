@@ -1,0 +1,121 @@
+---
+---
+
+<section id="vision" class="py-20 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6">
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+    
+    <!-- Left Text & Philosophy -->
+    <div>
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold/10 border border-gold/30 text-gold text-xs uppercase tracking-widest font-headline mb-4">
+        <span id="vision-tag">The Design Philosophy</span>
+      </div>
+      
+      <h2 class="text-3xl sm:text-4xl md:text-5xl font-black font-headline leading-tight text-white mb-6">
+        <span id="vision-t1">FUTURISTIC GEOMETRY</span> <br />
+        <span id="vision-t2" class="text-gold-gradient">& HYPER-LUXURY DESIGN</span>
+      </h2>
+
+      <p id="vision-desc" class="text-white/80 text-sm sm:text-base leading-relaxed font-light mb-8">
+        Binghatti is renowned for redefining Dubai's skyline through architectural masterworks that merge daring geometric forms with haute horlogerie and automotive craftsmanship.
+      </p>
+
+      <div class="space-y-6 mb-8">
+        <div class="flex items-start gap-4">
+          <div class="w-8 h-8 rounded-full bg-gold/20 border border-gold text-gold flex items-center justify-center font-bold text-sm shrink-0 mt-1">
+            01
+          </div>
+          <div>
+            <h4 id="vision-f1-title" class="text-white font-bold font-headline text-base">Signature Geometric Facades</h4>
+            <p id="vision-f1-desc" class="text-xs sm:text-sm text-white/70 mt-1">Angled balconies designed for maximum solar shading and iconic visual identity.</p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-4">
+          <div class="w-8 h-8 rounded-full bg-gold/20 border border-gold text-gold flex items-center justify-center font-bold text-sm shrink-0 mt-1">
+            02
+          </div>
+          <div>
+            <h4 id="vision-f2-title" class="text-white font-bold font-headline text-base">Ultra-Branded Partnerships</h4>
+            <p id="vision-f2-desc" class="text-xs sm:text-sm text-white/70 mt-1">Collaborations with Bugatti, Mercedes-Benz, and Jacob & Co to bring world-first branded towers.</p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-4">
+          <div class="w-8 h-8 rounded-full bg-gold/20 border border-gold text-gold flex items-center justify-center font-bold text-sm shrink-0 mt-1">
+            03
+          </div>
+          <div>
+            <h4 id="vision-f3-title" class="text-white font-bold font-headline text-base">Unrivaled Craftsmanship</h4>
+            <p id="vision-f3-desc" class="text-xs sm:text-sm text-white/70 mt-1">Hand-selected French marble, brushed bronze metals, and private sky pools in every residence.</p>
+          </div>
+        </div>
+      </div>
+
+      <a href="#vip-form" id="vision-btn-brochure" class="inline-flex items-center gap-2 text-gold hover:text-white font-bold text-xs sm:text-sm uppercase tracking-wider transition-colors">
+        <span>Explore Architecture Brochure</span>
+        <span>→</span>
+      </a>
+    </div>
+
+    <!-- Right Image Showcase -->
+    <div class="relative">
+      <div class="relative rounded-2xl overflow-hidden glass-card border-gold/40 group">
+        <img
+          src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1000&q=80"
+          alt="Binghatti Architectural Vision"
+          class="w-full h-[380px] sm:h-[480px] object-cover group-hover:scale-105 transition-transform duration-700"
+        />
+        <div class="absolute inset-0 bg-gradient-to-t from-bg-offblack via-transparent to-transparent"></div>
+        <div class="absolute bottom-6 left-6 right-6 p-4 rounded-xl glass-card border-gold/40">
+          <span class="text-xs uppercase tracking-widest text-gold font-headline block mb-1">Business Bay Landmark</span>
+          <span class="text-base sm:text-lg font-bold text-white font-headline">Binghatti Signature Sky Tower</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<script>
+  import { translations } from '../lib/translations.js';
+
+  function updateVision(lang) {
+    const t = translations[lang] || translations.en;
+    const v = t.vision;
+
+    const tag = document.getElementById('vision-tag');
+    const t1 = document.getElementById('vision-t1');
+    const t2 = document.getElementById('vision-t2');
+    const desc = document.getElementById('vision-desc');
+
+    const f1t = document.getElementById('vision-f1-title');
+    const f1d = document.getElementById('vision-f1-desc');
+    const f2t = document.getElementById('vision-f2-title');
+    const f2d = document.getElementById('vision-f2-desc');
+    const f3t = document.getElementById('vision-f3-title');
+    const f3d = document.getElementById('vision-f3-desc');
+
+    const btn = document.getElementById('vision-btn-brochure');
+
+    if (tag) tag.innerText = v.tag;
+    if (t1) t1.innerText = v.title1;
+    if (t2) t2.innerText = v.title2;
+    if (desc) desc.innerText = v.desc;
+
+    if (f1t) f1t.innerText = v.f1Title;
+    if (f1d) f1d.innerText = v.f1Desc;
+    if (f2t) f2t.innerText = v.f2Title;
+    if (f2d) f2d.innerText = v.f2Desc;
+    if (f3t) f3t.innerText = v.f3Title;
+    if (f3d) f3d.innerText = v.f3Desc;
+
+    if (btn) btn.innerHTML = `<span>${v.btnBrochure}</span> <span>→</span>`;
+  }
+
+  window.addEventListener('languageChange', (e: any) => {
+    updateVision(e.detail.lang);
+  });
+
+  const savedLang = localStorage.getItem('binghatti_lang') || 'en';
+  updateVision(savedLang);
+</script>

@@ -1,0 +1,167 @@
+---
+const units = [
+  {
+    id: "studio",
+    titleKey: "studio",
+    size: "450 - 550 sq. ft.",
+    price: "AED 950,000",
+    usdPrice: "$258,000",
+    image: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    id: "1bed",
+    titleKey: "oneBed",
+    size: "850 - 1,050 sq. ft.",
+    price: "AED 1,450,000",
+    usdPrice: "$394,000",
+    image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    id: "2bed",
+    titleKey: "twoBed",
+    size: "1,350 - 1,650 sq. ft.",
+    price: "AED 2,300,000",
+    usdPrice: "$626,000",
+    image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=80"
+  },
+  {
+    id: "penthouse",
+    titleKey: "penthouse",
+    size: "3,200 - 5,500 sq. ft.",
+    price: "AED 6,500,000",
+    usdPrice: "$1,769,000",
+    image: "https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=800&q=80"
+  }
+];
+---
+
+<section id="floor-plans" class="py-20 sm:py-24 bg-bg-dark border-y border-white/10">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    
+    <!-- Section Header -->
+    <div class="text-center max-w-3xl mx-auto mb-16">
+      <span id="units-tag" class="text-xs uppercase tracking-[0.3em] text-gold font-headline font-bold block mb-2">
+        Residences & Floor Plans
+      </span>
+      <h2 class="text-3xl sm:text-4xl md:text-5xl font-black font-headline text-white mb-4">
+        <span id="units-t1">EXCLUSIVE</span> <span id="units-t2" class="text-gold-gradient">UNIT COLLECTION</span>
+      </h2>
+      <p id="units-desc" class="text-white/80 text-sm sm:text-base font-light">
+        Curated living spaces crafted with precision geometry, Italian porcelain, and panoramic views of Downtown Dubai.
+      </p>
+    </div>
+
+    <!-- Unit Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      {units.map((unit) => (
+        <div class="glass-card glass-card-hover rounded-2xl overflow-hidden border-gold/30 flex flex-col justify-between">
+          <div>
+            <div class="relative h-64 sm:h-72 overflow-hidden">
+              <img src={unit.image} alt={unit.id} class="w-full h-full object-cover" />
+              <div class="absolute top-4 left-4 px-3 py-1 rounded-full bg-black/90 backdrop-blur-md border border-gold/50 text-gold text-xs font-headline font-bold">
+                {unit.size}
+              </div>
+            </div>
+            
+            <div class="p-6">
+              <div class="flex items-center justify-between mb-4">
+                <h3 id={`unit-title-${unit.id}`} class="text-xl font-bold font-headline text-white">--</h3>
+                <div class="text-right">
+                  <span id={`unit-price-${unit.id}`} class="block text-lg sm:text-xl font-bold font-headline text-gold">{unit.price}</span>
+                  <span id={`unit-subprice-${unit.id}`} class="text-xs text-white/70">{unit.usdPrice}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-6 pt-0">
+            <a
+              href="#vip-form"
+              id={`unit-btn-${unit.id}`}
+              style="background: linear-gradient(135deg, #FFF099 0%, #D4AF37 50%, #F59E0B 100%) !important; color: #000000 !important; font-weight: 900 !important;"
+              class="w-full py-3.5 rounded-xl text-xs uppercase font-headline tracking-wider hover:scale-[1.02] hover:brightness-110 transition-all duration-300 block text-center shadow-[0_0_20px_rgba(212,175,55,0.4)] cursor-pointer"
+            >
+              Unlock Full Floor Plan (PDF)
+            </a>
+          </div>
+        </div>
+      ))}
+    </div>
+
+  </div>
+</section>
+
+<script>
+  import { translations } from '../lib/translations.js';
+  import { convertAED } from '../lib/currencyFormatter.js';
+
+  const unitAEDPrices: Record<string, number> = {
+    studio: 950000,
+    '1bed': 1450000,
+    '2bed': 2300000,
+    penthouse: 6500000
+  };
+
+  function updateUnitPrices(curr: string) {
+    Object.keys(unitAEDPrices).forEach(id => {
+      const priceEl = document.getElementById(`unit-price-${id}`);
+      const subPriceEl = document.getElementById(`unit-subprice-${id}`);
+      const aedAmt = unitAEDPrices[id];
+
+      if (priceEl) {
+        priceEl.innerText = convertAED(aedAmt, curr);
+      }
+      if (subPriceEl) {
+        if (curr === 'AED') {
+          subPriceEl.innerText = convertAED(aedAmt, 'USD');
+        } else {
+          subPriceEl.innerText = convertAED(aedAmt, 'AED');
+        }
+      }
+    });
+  }
+
+  function updateUnits(lang: string) {
+    const t = translations[lang] || translations.en;
+    const u = t.units;
+
+    const tag = document.getElementById('units-tag');
+    const t1 = document.getElementById('units-t1');
+    const t2 = document.getElementById('units-t2');
+    const desc = document.getElementById('units-desc');
+
+    if (tag) tag.innerText = u.tag;
+    if (t1) t1.innerText = u.title1;
+    if (t2) t2.innerText = u.title2;
+    if (desc) desc.innerText = u.desc;
+
+    const studio = document.getElementById('unit-title-studio');
+    const oneBed = document.getElementById('unit-title-1bed');
+    const twoBed = document.getElementById('unit-title-2bed');
+    const penthouse = document.getElementById('unit-title-penthouse');
+
+    if (studio) studio.innerText = u.studio;
+    if (oneBed) oneBed.innerText = u.oneBed;
+    if (twoBed) twoBed.innerText = u.twoBed;
+    if (penthouse) penthouse.innerText = u.penthouse;
+
+    ['studio', '1bed', '2bed', 'penthouse'].forEach(id => {
+      const btn = document.getElementById(`unit-btn-${id}`);
+      if (btn) btn.innerText = u.btnUnlock;
+    });
+  }
+
+  window.addEventListener('languageChange', (e: any) => {
+    updateUnits(e.detail.lang);
+  });
+
+  window.addEventListener('currencyChange', (e: any) => {
+    updateUnitPrices(e.detail.currency);
+  });
+
+  const savedLang = localStorage.getItem('binghatti_lang') || 'en';
+  updateUnits(savedLang);
+
+  const savedCurr = localStorage.getItem('binghatti_currency') || 'AED';
+  updateUnitPrices(savedCurr);
+</script>

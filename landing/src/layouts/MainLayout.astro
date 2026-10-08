@@ -1,0 +1,58 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  lang?: string;
+  dir?: 'ltr' | 'rtl';
+}
+
+const {
+  title = 'Binghatti Residences | Architectural Masterpieces in Dubai',
+  description = 'Discover ultra-luxurious Binghatti branded residences in Business Bay & Downtown Dubai. Starting AED 1.2M with 70/30 payment plan & 10-Year Golden Visa eligibility.',
+  lang = 'en',
+  dir = 'ltr',
+} = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang={lang} dir={dir} class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- SEO Meta Tags -->
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="keywords" content="Binghatti, Dubai Real Estate, Bugatti Residences, Mercedes-Benz Places, Business Bay Luxury Apartments, Golden Visa Dubai" />
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80" />
+
+    <!-- Google Fonts Preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  </head>
+  <body class="bg-bg-offblack text-white selection:bg-gold selection:text-black">
+    <slot />
+
+    <script>
+      import { updateDOMTranslations } from '../lib/i18n.js';
+
+      window.addEventListener('languageChange', (e: any) => {
+        updateDOMTranslations(e.detail.lang);
+      });
+
+      // Run on page load
+      const savedLang = localStorage.getItem('binghatti_lang') || 'en';
+      updateDOMTranslations(savedLang);
+    </script>
+  </body>
+</html>

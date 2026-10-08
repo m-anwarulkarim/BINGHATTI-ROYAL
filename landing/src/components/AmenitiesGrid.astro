@@ -1,0 +1,95 @@
+---
+const amenities = [
+  { 
+    id: "a1", 
+    // Infinity Pool
+    svgPath: "M3 15c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2M3 19c2.5 0 2.5-2 5-2s2.5 2 5 2 2.5-2 5-2 2.5 2 5 2M12 4v4m0 0l-2-2m2 2l2-2" 
+  },
+  { 
+    id: "a2", 
+    // Concierge & Bell
+    svgPath: "M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" 
+  },
+  { 
+    id: "a3", 
+    // Spa & Wellness Sparkle
+    svgPath: "M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" 
+  },
+  { 
+    id: "a4", 
+    // Smart Home Smartphone / Automation
+    svgPath: "M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" 
+  },
+  { 
+    id: "a5", 
+    // Sky Lounge Glass
+    svgPath: "M9 19v2m6-2v2m-7-2h8a2 2 0 002-2V9a2 2 0 00-2-2H8a2 2 0 00-2 2v8a2 2 0 002 2zm0-10V5a2 2 0 012-2h4a2 2 0 012 2v4" 
+  },
+  { 
+    id: "a6", 
+    // Kids & Family Zone Smile / Play
+    svgPath: "M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" 
+  }
+];
+---
+
+<section id="amenities" class="py-20 sm:py-24 max-w-7xl mx-auto px-4 sm:px-6">
+  <div class="text-center max-w-3xl mx-auto mb-16">
+    <span id="amenities-tag" class="text-xs uppercase tracking-[0.3em] text-gold font-headline font-bold block mb-2">Unrivaled Lifestyle</span>
+    <h2 class="text-3xl sm:text-4xl md:text-5xl font-black font-headline text-white mb-4">
+      <span id="amenities-t1">WORLD-CLASS</span> <span id="amenities-t2" class="text-gold-gradient">AMENITIES</span>
+    </h2>
+    <p id="amenities-desc" class="text-white/80 text-sm sm:text-base font-light">
+      Experience 5-star hotel living engineered into your daily private sanctuary.
+    </p>
+  </div>
+
+  <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-6">
+    {amenities.map((item) => (
+      <div class="glass-card glass-card-hover p-4 sm:p-8 rounded-2xl border-gold/30 flex flex-col justify-between">
+        <div>
+          <div class="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gold/15 border border-gold/40 flex items-center justify-center mb-3 sm:mb-6 text-gold shadow-[0_0_15px_rgba(212,175,55,0.2)]">
+            <svg class="w-5 h-5 sm:w-7 sm:h-7 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d={item.svgPath}></path>
+            </svg>
+          </div>
+          <h3 id={`amenity-t-${item.id}`} class="text-sm sm:text-xl font-bold font-headline text-white mb-1.5 sm:mb-3">--</h3>
+          <p id={`amenity-d-${item.id}`} class="text-[11px] sm:text-sm text-white/80 font-light leading-relaxed">--</p>
+        </div>
+      </div>
+    ))}
+  </div>
+</section>
+
+<script>
+  import { translations } from '../lib/translations.js';
+
+  function updateAmenities(lang) {
+    const t = translations[lang] || translations.en;
+    const a = t.amenities;
+
+    const tag = document.getElementById('amenities-tag');
+    const t1 = document.getElementById('amenities-t1');
+    const t2 = document.getElementById('amenities-t2');
+    const desc = document.getElementById('amenities-desc');
+
+    if (tag) tag.innerText = a.tag;
+    if (t1) t1.innerText = a.title1;
+    if (t2) t2.innerText = a.title2;
+    if (desc) desc.innerText = a.desc;
+
+    ['a1', 'a2', 'a3', 'a4', 'a5', 'a6'].forEach(id => {
+      const titleEl = document.getElementById(`amenity-t-${id}`);
+      const descEl = document.getElementById(`amenity-d-${id}`);
+      if (titleEl) titleEl.innerText = a[`${id}Title`];
+      if (descEl) descEl.innerText = a[`${id}Desc`];
+    });
+  }
+
+  window.addEventListener('languageChange', (e: any) => {
+    updateAmenities(e.detail.lang);
+  });
+
+  const savedLang = localStorage.getItem('binghatti_lang') || 'en';
+  updateAmenities(savedLang);
+</script>

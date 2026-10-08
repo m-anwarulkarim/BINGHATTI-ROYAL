@@ -1,0 +1,263 @@
+---
+
+---
+
+<section
+  class="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden pt-28 sm:pt-36 md:pt-40 pb-16"
+>
+  <!-- 1. Background Multi-Video Crossfade Playlist -->
+  <div class="absolute inset-0 z-0 overflow-hidden">
+    <!-- Active Layer Video 1 -->
+    <video
+      id="hero-video-1"
+      autoplay
+      muted
+      playsinline
+      src="/videos/v3.mp4"
+      poster="https://images.unsplash.com/photo-1546412414-8035e1786b9b?auto=format&fit=crop&w=2000&q=90"
+      class="absolute inset-0 w-full h-full object-cover filter brightness-[0.45] contrast-125 scale-105 transition-opacity duration-1000 opacity-100"
+    ></video>
+
+    <!-- Crossfade Layer Video 2 -->
+    <video
+      id="hero-video-2"
+      muted
+      playsinline
+      class="absolute inset-0 w-full h-full object-cover filter brightness-[0.45] contrast-125 scale-105 transition-opacity duration-1000 opacity-0"
+    ></video>
+
+    <!-- Dark Gradient Overlays for High Contrast Text -->
+    <div
+      class="absolute inset-0 bg-gradient-to-t from-bg-offblack via-bg-offblack/50 to-bg-offblack/90 z-10"
+    >
+    </div>
+    <div
+      class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(212,175,55,0.12)_0,transparent_75%)] z-10"
+    >
+    </div>
+  </div>
+
+  <!-- 2. Hero Content Container -->
+  <div
+    class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 text-center flex flex-col items-center my-auto"
+  >
+    <!-- Luxury Partnership / Brand Badge -->
+    <div
+      class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full glass-card border-gold/40 mb-6 sm:mb-8 animate-fade-in shadow-[0_0_15px_rgba(212,175,55,0.2)]"
+    >
+      <span class="w-2.5 h-2.5 rounded-full bg-gold animate-ping"></span>
+      <span
+        id="hero-badge"
+        class="text-[10px] sm:text-xs uppercase tracking-[0.2em] font-headline text-gold font-bold"
+      >
+        BINGHATTI SIGNATURE RESIDENCES • BUSINESS BAY, DUBAI
+      </span>
+    </div>
+
+    <!-- Title & Headline -->
+    <h1
+      class="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black font-headline tracking-tight text-white leading-[1.15] max-w-5xl mb-6"
+    >
+      <span id="hero-title1" class="block drop-shadow-lg"
+        >ARCHITECTURAL MASTERPIECE</span
+      >
+      <span
+        id="hero-title2"
+        class="text-gold-gradient font-black block mt-1 drop-shadow-[0_4px_10px_rgba(212,175,55,0.3)]"
+        >IN BUSINESS BAY</span
+      >
+    </h1>
+
+    <p
+      id="hero-subtitle"
+      class="text-sm sm:text-lg md:text-xl text-white/90 max-w-2xl font-normal mb-8 sm:mb-10 leading-relaxed drop-shadow-md"
+    >
+      Where futuristic geometry meets hyper-luxury living. Iconic towers crafted
+      in partnership with world-renowned automotive titans.
+    </p>
+
+    <!-- Quick Value Sticker -->
+    <div
+      class="grid grid-cols-2 gap-4 max-w-lg w-full mb-8 sm:mb-10 glass-card p-4 sm:p-5 rounded-2xl border-gold/40 shadow-xl"
+    >
+      <div class="text-center border-r border-white/20 pr-2">
+        <span
+          id="hero-price-lbl"
+          class="block text-[10px] sm:text-xs uppercase tracking-wider text-white/80 font-semibold mb-1"
+          >Starting Price</span
+        >
+        <span
+          id="hero-price-val"
+          class="text-lg sm:text-2xl font-bold text-gold font-headline"
+          >AED 1.2M <span
+            class="text-[10px] sm:text-xs text-white/90 font-normal"
+            >(~$320K)</span
+          ></span
+        >
+      </div>
+      <div class="text-center pl-2">
+        <span
+          id="hero-handover-lbl"
+          class="block text-[10px] sm:text-xs uppercase tracking-wider text-white/80 font-semibold mb-1"
+          >Handover Date</span
+        >
+        <span
+          id="hero-handover-val"
+          class="text-lg sm:text-2xl font-bold text-white font-headline"
+          >Q4 2027</span
+        >
+      </div>
+    </div>
+
+    <!-- Dual High-Contrast CTAs -->
+    <div
+      class="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto"
+    >
+      <a
+        href="#vip-form"
+        id="hero-btn-register"
+        class="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 text-black font-extrabold uppercase tracking-wider text-sm transition-all duration-300 hover:scale-105 shadow-[0_0_30px_rgba(251,191,36,0.6)] text-center"
+      >
+        Register Interest
+      </a>
+      <a
+        href="#floor-plans"
+        id="hero-btn-brochure"
+        class="w-full sm:w-auto px-8 py-4 rounded-xl bg-black/70 backdrop-blur-md border border-gold/60 text-white font-bold uppercase tracking-wider text-sm hover:bg-gold/20 hover:border-gold transition-all duration-300 text-center"
+      >
+        Download Brochure
+      </a>
+    </div>
+  </div>
+
+  <!-- Scroll Down Indicator -->
+  <div class="relative z-10 mt-8 animate-bounce">
+    <a
+      href="#highlights"
+      class="text-gold hover:text-white text-xs font-semibold tracking-widest uppercase flex flex-col items-center gap-1.5 transition-colors"
+    >
+      <span id="hero-scroll">Scroll</span>
+      <svg
+        class="w-4 h-4"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2.5"
+          d="M19 14l-7 7-7-7"></path>
+      </svg>
+    </a>
+  </div>
+</section>
+
+<script>
+  import { translations } from "../lib/translations.js";
+  import { convertAED, convertAEDShort } from "../lib/currencyFormatter.js";
+
+  function updateHeroCurrency(curr: string) {
+    const pVal = document.getElementById("hero-price-val");
+    if (!pVal) return;
+
+    if (curr === "AED") {
+      pVal.innerHTML = `AED 1.2M <span class="text-[10px] sm:text-xs text-white/90 font-normal">(~$326K USD)</span>`;
+    } else {
+      const mainConverted = convertAEDShort(1200000, curr);
+      const subConverted = convertAED(1200000, curr);
+      pVal.innerHTML = `${mainConverted} <span class="text-[10px] sm:text-xs text-white/90 font-normal">(${subConverted})</span>`;
+    }
+  }
+
+  function updateHero(lang: string) {
+    const t = translations[lang] || translations.en;
+
+    const badge = document.getElementById("hero-badge");
+    const t1 = document.getElementById("hero-title1");
+    const t2 = document.getElementById("hero-title2");
+    const sub = document.getElementById("hero-subtitle");
+    const pLbl = document.getElementById("hero-price-lbl");
+    const hLbl = document.getElementById("hero-handover-lbl");
+    const hVal = document.getElementById("hero-handover-val");
+    const bReg = document.getElementById("hero-btn-register");
+    const bBro = document.getElementById("hero-btn-brochure");
+    const sc = document.getElementById("hero-scroll");
+
+    if (badge) badge.innerText = t.hero.badge;
+    if (t1) t1.innerText = t.hero.title1;
+    if (t2) t2.innerText = t.hero.title2;
+    if (sub) sub.innerText = t.hero.subtitle;
+    if (pLbl) pLbl.innerText = t.hero.startingPriceLabel;
+    if (hLbl) hLbl.innerText = t.hero.handoverLabel;
+    if (hVal) hVal.innerText = t.hero.handoverVal;
+    if (bReg) bReg.innerText = t.hero.btnRegister;
+    if (bBro) bBro.innerText = t.hero.btnBrochure;
+    if (sc) sc.innerText = t.hero.scroll;
+  }
+
+  window.addEventListener("languageChange", (e: any) => {
+    updateHero(e.detail.lang);
+  });
+
+  window.addEventListener("currencyChange", (e: any) => {
+    updateHeroCurrency(e.detail.currency);
+  });
+
+  const savedCurr = localStorage.getItem("binghatti_currency") || "AED";
+  updateHeroCurrency(savedCurr);
+
+  // 2. Sequential Multi-Video Playlist Engine (c9c3b623 -> 5bfa84f6 -> f3ebc2a9 -> loop)
+  const videoPlaylist = [
+    "/videos/v3.mp4", // gemini_generated_video_c9c3b623.mp4 (First)
+    "/videos/v1.mp4", // gemini_generated_video_5bfa84f6.mp4 (Second)
+    // '/videos/v2.mp4'  // gemini_generated_video_f3ebc2a9.mp4 (Third)
+  ];
+
+  let currentVideoIndex = 0;
+  let activeVideoEl = document.getElementById(
+    "hero-video-1",
+  ) as HTMLVideoElement;
+  let nextVideoEl = document.getElementById("hero-video-2") as HTMLVideoElement;
+
+  function transitionToNextVideo() {
+    if (!activeVideoEl || !nextVideoEl) return;
+
+    const nextIndex = (currentVideoIndex + 1) % videoPlaylist.length;
+    nextVideoEl.src = videoPlaylist[nextIndex];
+    nextVideoEl.load();
+
+    nextVideoEl
+      .play()
+      .then(() => {
+        // Crossfade opacity transition
+        nextVideoEl.classList.remove("opacity-0");
+        nextVideoEl.classList.add("opacity-100");
+        activeVideoEl.classList.remove("opacity-100");
+        activeVideoEl.classList.add("opacity-0");
+
+        // Swap active and next element pointers
+        const temp = activeVideoEl;
+        activeVideoEl = nextVideoEl;
+        nextVideoEl = temp;
+
+        currentVideoIndex = nextIndex;
+        listenForVideoEnd();
+      })
+      .catch((err) => {
+        console.warn("Video auto-play prevented:", err);
+      });
+  }
+
+  function listenForVideoEnd() {
+    if (!activeVideoEl) return;
+    activeVideoEl.onended = () => {
+      transitionToNextVideo();
+    };
+  }
+
+  if (activeVideoEl) {
+    listenForVideoEnd();
+    activeVideoEl.play().catch(() => {});
+  }
+</script>

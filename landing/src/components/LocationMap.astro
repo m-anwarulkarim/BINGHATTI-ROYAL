@@ -1,0 +1,107 @@
+---
+const locations = [
+  { id: "loc1" },
+  { id: "loc2" },
+  { id: "loc3" },
+  { id: "loc4" }
+];
+---
+
+<section id="location" class="py-20 sm:py-24 bg-bg-dark border-t border-white/10">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <!-- Left Content -->
+      <div>
+        <span id="loc-tag" class="text-xs uppercase tracking-[0.3em] text-gold font-headline font-bold block mb-2">Strategic Connectivity</span>
+        <h2 class="text-3xl sm:text-4xl md:text-5xl font-black font-headline text-white mb-6">
+          <span id="loc-t1">PRIME LOCATION</span> <br />
+          <span id="loc-t2" class="text-gold-gradient">IN BUSINESS BAY</span>
+        </h2>
+        <p id="loc-desc" class="text-white/80 text-sm sm:text-base font-light mb-8 leading-relaxed">
+          Situated at the epicenter of Dubai's business and entertainment capital, with direct access to Al Khail Road & Sheikh Zayed Road.
+        </p>
+
+        <div class="space-y-4">
+          {locations.map((loc) => (
+            <div class="flex items-center justify-between p-4 rounded-xl glass-card border-gold/30 hover:border-gold/60 transition-colors">
+              <div class="flex items-center gap-3">
+                <div class="w-7 h-7 rounded-lg bg-gold/15 border border-gold/40 flex items-center justify-center text-gold flex-shrink-0">
+                  <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  </svg>
+                </div>
+                <span id={`loc-name-${loc.id}`} class="text-xs sm:text-sm font-bold font-headline text-white">--</span>
+              </div>
+              <div class="text-right">
+                <span id={`loc-time-${loc.id}`} class="px-3 py-1 rounded-full bg-gold/15 text-gold font-headline text-xs font-bold border border-gold/40 shadow-[0_0_10px_rgba(212,175,55,0.2)]">
+                  --
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- Right Custom Dark Map Graphic / Iframe -->
+      <div class="relative h-[380px] sm:h-[450px] rounded-2xl overflow-hidden glass-card border-gold/40 shadow-2xl">
+        <iframe
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14438.489373977507!2d55.274384!3d25.187311!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3e5f6825a07e15bf%3A0x6bfb1f6a152d0010!2sBusiness%20Bay%2C%20Dubai!5e0!3m2!1sen!2sae!4v1710000000000!5m2!1sen!2sae"
+          width="100%"
+          height="100%"
+          style="border:0; filter: grayscale(100%) invert(90%) contrast(120%);"
+          allowfullscreen=""
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          class="w-full h-full"
+        ></iframe>
+
+        <!-- Map Marker Overlay Badge -->
+        <div class="absolute bottom-6 left-6 right-6 sm:right-auto p-4 rounded-xl glass-card border-gold/40 bg-black/90 backdrop-blur-md">
+          <span id="loc-coord-lbl" class="block text-[10px] uppercase tracking-widest text-gold font-headline font-bold">Project Coordinates</span>
+          <span id="loc-coord-val" class="text-xs sm:text-sm font-bold text-white">Business Bay Canal Frontage, Dubai</span>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+<script>
+  import { translations } from '../lib/translations.js';
+
+  function updateLocation(lang) {
+    const t = translations[lang] || translations.en;
+    const l = t.location;
+
+    const tag = document.getElementById('loc-tag');
+    const t1 = document.getElementById('loc-t1');
+    const t2 = document.getElementById('loc-t2');
+    const desc = document.getElementById('loc-desc');
+    const cLbl = document.getElementById('loc-coord-lbl');
+    const cVal = document.getElementById('loc-coord-val');
+
+    if (tag) tag.innerText = l.tag;
+    if (t1) t1.innerText = l.title1;
+    if (t2) t2.innerText = l.title2;
+    if (desc) desc.innerText = l.desc;
+    if (cLbl) cLbl.innerText = l.coordLabel;
+    if (cVal) cVal.innerText = l.coordVal;
+
+    ['loc1', 'loc2', 'loc3', 'loc4'].forEach(id => {
+      const nameEl = document.getElementById(`loc-name-${id}`);
+      const timeEl = document.getElementById(`loc-time-${id}`);
+      if (nameEl) nameEl.innerText = l[id];
+      if (timeEl) timeEl.innerText = l[`${id}Time`];
+    });
+  }
+
+  window.addEventListener('languageChange', (e: any) => {
+    updateLocation(e.detail.lang);
+  });
+
+  const savedLang = localStorage.getItem('binghatti_lang') || 'en';
+  updateLocation(savedLang);
+</script>
