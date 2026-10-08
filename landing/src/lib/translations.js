@@ -160,8 +160,42 @@ export const translations = {
       submitting: "Submitting VIP Registration...",
       successMsg: "Registration Successful! Our VIP Senior Advisor will contact you on WhatsApp shortly."
     },
+    thankyou: {
+      badge: "تم تأكيد تسجيل VIP",
+      title: "شكراً لك",
+      sub: "تم استلام طلب الحجز الخاص بك في مساكن بن غاطي الملكية بنجاح. أنت الآن ضمن قائمة التخصيص الحصرية.",
+      refLabel: "الرقم المرجعي لتأكيد الحجز",
+      statusLabel: "حالة الأولوية",
+      allocated: "تم تخصيص الأولوية ✔",
+      nextStepsTitle: "الخطوات التالية:",
+      step1Title: "التواصل مع المستشار",
+      step1Sub: "سيتواصل معك مستشار العقارات الرئيسي عبر الواتساب قريباً.",
+      step2Title: "كتيب معلومات خاص",
+      step2Sub: "احصل على مخطّطات الطوابق وخيارات التصميم وخطة الدفع PDF.",
+      step3Title: "جلسة استشارية خاصة",
+      step3Sub: "جلسة استشارية خاصة في معرض مبيعات بن غاطي في دبي.",
+      chatBtn: "تحدث عبر الواتساب الآن",
+      homeBtn: "العودة إلى الصفحة الرئيسية"
+    },
     footer: {
       rights: "© 2026 Binghatti Luxury Residences. All rights reserved. Direct Developer Sales."
+    },
+    thankyou: {
+      badge: "VIP Registration Confirmed",
+      title: "Thank You",
+      sub: "Your priority reservation request for Binghatti Royal Residences has been received. You are now placed on our exclusive pre-launch allocation list.",
+      refLabel: "Confirmation Reference",
+      statusLabel: "Priority Status",
+      allocated: "Priority Allocated ✔",
+      nextStepsTitle: "What Happens Next:",
+      step1Title: "Advisor Contact",
+      step1Sub: "Senior Property Advisor will message you on WhatsApp shortly.",
+      step2Title: "Private Brochure",
+      step2Sub: "Receive floor plans, layout options and payment plan PDF.",
+      step3Title: "1-on-1 Briefing",
+      step3Sub: "Private consultation at Binghatti Dubai Sales Gallery.",
+      chatBtn: "Chat on WhatsApp Now",
+      homeBtn: "Return to Homepage"
     },
     whatsapp: {
       msg: "Hi, I am interested in Binghatti Luxury Residences in Business Bay. Please send me the brochure and pricing."
