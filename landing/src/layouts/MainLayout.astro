@@ -1,4 +1,4 @@
----
+﻿---
 import '../styles/global.css';
 
 interface Props {
@@ -6,14 +6,38 @@ interface Props {
   description?: string;
   lang?: string;
   dir?: 'ltr' | 'rtl';
+  canonicalUrl?: string;
 }
 
 const {
-  title = 'Binghatti Residences | Architectural Masterpieces in Dubai',
-  description = 'Discover ultra-luxurious Binghatti branded residences in Business Bay & Downtown Dubai. Starting AED 1.2M with 70/30 payment plan & 10-Year Golden Visa eligibility.',
+  title = 'Binghatti Royal Residences Dubai | Branded Luxury Penthouses',
+  description = 'Discover ultra-luxurious Binghatti branded residences in Business Bay & Downtown Dubai. Starting AED 1,200,000 with 70/30 payment plan & 10-Year Golden Visa eligibility.',
   lang = 'en',
   dir = 'ltr',
+  canonicalUrl = 'https://haqplus.com/',
 } = Astro.props;
+
+const schemaData = {
+  "@context": "https://schema.org",
+  "@type": "RealEstateListing",
+  "name": "Binghatti Royal Residences Dubai",
+  "description": description,
+  "url": canonicalUrl,
+  "image": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80",
+  "offers": {
+    "@type": "AggregateOffer",
+    "priceCurrency": "AED",
+    "lowPrice": "1200000",
+    "highPrice": "15000000",
+    "offerCount": "48"
+  },
+  "realEstateAgent": {
+    "@type": "RealEstateAgent",
+    "name": "Binghatti Senior VIP Advisory",
+    "telephone": "+971501234567",
+    "areaServed": "Dubai, United Arab Emirates"
+  }
+};
 ---
 
 <!DOCTYPE html>
@@ -23,22 +47,47 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="canonical" href={canonicalUrl} />
     <meta name="generator" content={Astro.generator} />
+
+    <!-- Technical SEO & Indexing -->
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="theme-color" content="#0A0A0A" />
 
     <!-- SEO Meta Tags -->
     <title>{title}</title>
     <meta name="description" content={description} />
-    <meta name="keywords" content="Binghatti, Dubai Real Estate, Bugatti Residences, Mercedes-Benz Places, Business Bay Luxury Apartments, Golden Visa Dubai" />
+    <meta name="keywords" content="Binghatti, Dubai Real Estate, Bugatti Residences, Mercedes-Benz Places, Business Bay Luxury Apartments, Golden Visa Dubai, Buy Penthouse Dubai, Jacob & Co Residences" />
+    <meta name="author" content="Binghatti Real Estate Developer Dubai" />
 
-    <!-- Open Graph / Social Media -->
+    <!-- Open Graph / Facebook / LinkedIn -->
     <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:site_name" content="Binghatti Royal Residences" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80" />
+    <meta property="og:locale" content="en_US" />
 
-    <!-- Google Fonts Preconnect -->
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80" />
+
+    <!-- Multi-Language Hreflang Alternates -->
+    <link rel="alternate" hreflang="en" href={canonicalUrl} />
+    <link rel="alternate" hreflang="ar" href={`${canonicalUrl}?lang=ar`} />
+    <link rel="alternate" hreflang="fr" href={`${canonicalUrl}?lang=fr`} />
+    <link rel="alternate" hreflang="ru" href={`${canonicalUrl}?lang=ru`} />
+
+    <!-- Google Fonts Preconnect & Swap Optimization -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
+
+    <!-- Structured Data JSON-LD (Schema.org) for Google Rich Snippets -->
+    <script type="application/ld+json" set:html={JSON.stringify(schemaData)}></script>
   </head>
   <body class="bg-bg-offblack text-white selection:bg-gold selection:text-black">
     <slot />

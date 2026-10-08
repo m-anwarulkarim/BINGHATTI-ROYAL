@@ -1,0 +1,6 @@
+﻿User-agent: *
+Allow: /
+Disallow: /scratch/
+Disallow: /api/
+
+Sitemap: https://haqplus.com/sitemap.xml

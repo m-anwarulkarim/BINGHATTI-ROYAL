@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://haqplus.com/</loc>
+    <lastmod>2026-10-08</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://haqplus.com/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://haqplus.com/?lang=ar"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://haqplus.com/?lang=fr"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://haqplus.com/?lang=ru"/>
+  </url>
+  <url>
+    <loc>https://haqplus.com/thank-you</loc>
+    <lastmod>2026-10-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+</urlset>
