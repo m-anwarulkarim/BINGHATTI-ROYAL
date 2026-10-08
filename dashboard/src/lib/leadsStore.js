@@ -1,4 +1,4 @@
-﻿import { writable } from 'svelte/store';
+import { writable } from 'svelte/store';
 
 function getStatusOverrides() {
   if (typeof window === 'undefined') return {};
@@ -38,9 +38,15 @@ function loadInitialLeads() {
 
 export const leadsStore = writable(loadInitialLeads());
 
+const API_BASE = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.PUBLIC_API_URL) 
+  ? import.meta.env.PUBLIC_API_URL 
+  : (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? '' 
+    : 'https://binghatti-royal.onrender.com');
+
 export async function fetchLeadsFromAPI() {
-  try {
-    const res = await fetch('http://localhost:8085/api/v1/leads');
+    try {
+      const res = await fetch(\/api/v1/leads);
     if (res.ok) {
       const json = await res.json();
       if (json.success && Array.isArray(json.data)) {
@@ -85,7 +91,7 @@ export async function updateLeadStatus(leadId, newStatus) {
   });
 
   try {
-    await fetch(`http://localhost:8085/api/v1/leads/${leadId}/status`, {
+    await fetch(`/api/v1/leads/${leadId}/status`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: newStatus })
@@ -108,7 +114,7 @@ export async function createManualLead(leadData) {
   };
 
   try {
-    const res = await fetch('http://localhost:8085/api/v1/leads', {
+    const res = await fetch('/api/v1/leads', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(leadData)
