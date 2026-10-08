@@ -181,7 +181,8 @@
 
       messageBox?.classList.remove('hidden');
       messageBox?.classList.add('bg-gold/20', 'text-gold', 'border', 'border-gold/40');
-      messageBox!.innerText = 'Registration Successful! Our VIP Senior Advisor will contact you on WhatsApp shortly.';
+      messageBox!.innerText = 'Registration Successful! Redirecting to VIP Confirmation...';
+      setTimeout(() => { window.location.href = /thank-you?name=; }, 500);
       form.reset();
 
       submitBtn.disabled = false;

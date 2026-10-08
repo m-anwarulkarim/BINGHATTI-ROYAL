@@ -1,0 +1,120 @@
+﻿---
+import MainLayout from '../layouts/MainLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import FloatingWhatsApp from '../components/FloatingWhatsApp.astro';
+---
+
+<MainLayout title="Thank You | Binghatti Royal VIP Access">
+  <Header />
+
+  <main class="min-h-screen pt-32 pb-20 px-4 flex items-center justify-center relative bg-black overflow-hidden">
+    <!-- Background Radial Glow -->
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(212,175,55,0.15)_0,transparent_70%)]"></div>
+
+    <div class="relative w-full max-w-2xl glass-card p-8 sm:p-12 rounded-3xl border-2 border-gold/50 shadow-[0_0_60px_rgba(212,175,55,0.3)] bg-bg-card/90 text-center space-y-8 animate-fade-in">
+      
+      <!-- Animated Golden Badge -->
+      <div class="w-20 h-20 rounded-full bg-gold/20 border-2 border-gold text-gold flex items-center justify-center mx-auto shadow-[0_0_30px_rgba(212,175,55,0.5)] transition-transform duration-500 hover:scale-110">
+        <svg class="w-10 h-10 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+        </svg>
+      </div>
+
+      <!-- Main Heading -->
+      <div>
+        <span class="px-4 py-1 rounded-full bg-gold/15 border border-gold/40 text-gold text-xs font-headline font-bold uppercase tracking-widest inline-block mb-3">
+          VIP Registration Confirmed
+        </span>
+        <h1 class="text-3xl sm:text-4xl font-extrabold font-headline text-white tracking-tight">
+          Thank You <span id="clientName" class="text-gold">Valued Investor</span>
+        </h1>
+        <p class="text-sm sm:text-base text-white/80 mt-3 max-w-lg mx-auto font-light leading-relaxed">
+          Your priority reservation request for Binghatti Royal Residences has been received. You are now placed on our exclusive pre-launch allocation list.
+        </p>
+      </div>
+
+      <!-- Summary Details Box -->
+      <div class="p-4 sm:p-6 rounded-2xl bg-black/60 border border-gold/30 text-left grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-mono">
+        <div>
+          <span class="text-white/50 block uppercase text-[10px] tracking-wider font-headline">Confirmation Reference</span>
+          <span class="text-gold font-bold text-sm">REF-BINGHATTI-<span id="refCode">2026</span></span>
+        </div>
+        <div>
+          <span class="text-white/50 block uppercase text-[10px] tracking-wider font-headline">Priority Status</span>
+          <span class="text-emerald-400 font-bold text-sm">Priority Allocated ✔</span>
+        </div>
+      </div>
+
+      <!-- Next Steps Timeline -->
+      <div class="text-left space-y-4 pt-2">
+        <h3 class="text-xs font-bold font-headline uppercase tracking-wider text-gold/90 border-b border-white/10 pb-2">
+          What Happens Next:
+        </h3>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+          <div class="p-3.5 rounded-xl bg-white/5 border border-white/10 space-y-1">
+            <span class="w-6 h-6 rounded-full bg-gold/20 text-gold font-bold flex items-center justify-center text-[10px] mb-2">1</span>
+            <h4 class="font-bold font-headline text-white">Advisor Contact</h4>
+            <p class="text-white/60 text-[11px]">Senior Property Advisor will message you on WhatsApp shortly.</p>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-white/5 border border-white/10 space-y-1">
+            <span class="w-6 h-6 rounded-full bg-gold/20 text-gold font-bold flex items-center justify-center text-[10px] mb-2">2</span>
+            <h4 class="font-bold font-headline text-white">Private Brochure</h4>
+            <p class="text-white/60 text-[11px]">Receive floor plans, layout options & payment plan PDF.</p>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-white/5 border border-white/10 space-y-1">
+            <span class="w-6 h-6 rounded-full bg-gold/20 text-gold font-bold flex items-center justify-center text-[10px] mb-2">3</span>
+            <h4 class="font-bold font-headline text-white">1-on-1 Briefing</h4>
+            <p class="text-white/60 text-[11px]">Private consultation at Binghatti Dubai Sales Gallery.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
+        <a
+          id="whatsappLink"
+          href="https://wa.me/971501234567?text=Hello%20Binghatti%20Royal%20Advisor,%20I%20have%20just%20completed%20my%20VIP%20Registration."
+          target="_blank"
+          class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-500 text-black font-headline font-bold text-xs uppercase tracking-wider hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20"
+        >
+          <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-1.157 4.228 4.398-1.153z"/>
+          </svg>
+          <span>Chat on WhatsApp Now</span>
+        </a>
+
+        <a
+          href="/"
+          class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-white/10 border border-white/20 text-white font-headline font-semibold text-xs uppercase tracking-wider hover:bg-white/20 transition-all"
+        >
+          <span>Return to Homepage</span>
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <Footer />
+  <FloatingWhatsApp />
+</MainLayout>
+
+<script>
+  if (typeof window !== 'undefined') {
+    const urlParams = new URLSearchParams(window.location.search);
+    const nameParam = urlParams.get('name');
+    const nameElem = document.getElementById('clientName');
+    const refElem = document.getElementById('refCode');
+
+    if (nameParam && nameElem) {
+      nameElem.innerText = nameParam;
+    }
+
+    if (refElem) {
+      refElem.innerText = Math.floor(100000 + Math.random() * 900000).toString();
+    }
+  }
+</script>
