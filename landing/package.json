@@ -3,10 +3,10 @@
   "type": "module",
   "version": "1.0.0",
   "scripts": {
-    "dev": "node node_modules/astro/bin/astro.mjs dev",
-    "start": "node node_modules/astro/bin/astro.mjs dev",
-    "build": "node node_modules/astro/bin/astro.mjs build",
-    "preview": "node node_modules/astro/bin/astro.mjs preview"
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
   },
   "dependencies": {
     "@astrojs/svelte": "^7.0.4",
